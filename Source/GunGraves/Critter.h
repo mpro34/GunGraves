@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "Components/StaticMeshComponent.h"
 #include "Critter.generated.h"
 
 
@@ -28,6 +27,19 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
-	UStaticMeshComponent* MeshComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh")
+	class UStaticMeshComponent* MeshComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UCameraComponent* Camera;
+
+	UPROPERTY(EditAnywhere, Category = "Pawn Movement")
+	float MaxSpeed;
+
+private:
+
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+
+	FVector CurrentVelocity;
 };
