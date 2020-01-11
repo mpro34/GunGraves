@@ -13,6 +13,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Sound/SoundCue.h"
 #include "Components/CapsuleComponent.h"
+#include "MainPlayerController.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -92,6 +93,15 @@ void AEnemy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 		AMain* Main = Cast<AMain>(OtherActor);
 		if (Main)
 		{
+			if (Main->CombatTarget == this)
+			{
+				Main->SetCombatTarget(nullptr);
+			}
+			Main->SetHasCombatTarget(false);
+			if (Main->MainPlayerController)
+			{
+				Main->MainPlayerController->RemoveEnemyHealthBar();
+			}
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Idle);
 			if (AIController)
 			{
@@ -109,6 +119,12 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 		if (Main)
 		{
 			Main->SetCombatTarget(this);
+			Main->SetHasCombatTarget(true);
+			if (Main->MainPlayerController)
+			{
+				Main->MainPlayerController->DisplayEnemyHealthBar();
+			}
+			
 			CombatTarget = Main;
 			bOverlappingCombatSphere = true;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
@@ -126,11 +142,9 @@ void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
 	if (OtherActor)
 	{
 		AMain* Main = Cast<AMain>(OtherActor);
-		if (Main)
 		{
-			if (Main->CombatTarget == this)
+			if (Main)
 			{
-				Main->SetCombatTarget(nullptr);
 				bOverlappingCombatSphere = false;
 				if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
 				{

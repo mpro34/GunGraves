@@ -9,10 +9,11 @@
 UENUM(BlueprintType)
 enum class EMovementStatus : uint8
 {
-	EMS_Normal UMETA(DisplayName = "Normal"),
-	EMS_Sprinting UMETA(DisplayName = "Sprinting"),
+	EMS_Normal		UMETA(DisplayName = "Normal"),
+	EMS_Sprinting	UMETA(DisplayName = "Sprinting"),
+	EMS_Dead		UMETA(DisplayName = "Dead"),
 
-	EMS_MAX UMETA(DisplayName = "DefaultMAX")
+	EMS_MAX			UMETA(DisplayName = "DefaultMAX")
 };
 
 UENUM(BlueprintType)
@@ -35,6 +36,17 @@ class GUNGRAVES_API AMain : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AMain();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bHasCombatTarget;
+
+	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
+	FVector CombatTargetLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")
+	class AMainPlayerController* MainPlayerController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	class UParticleSystem* HitParticles;
@@ -126,6 +138,8 @@ public:
 
 	void Die();
 
+	virtual void Jump() override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -181,4 +195,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage;
+
+	UFUNCTION(BlueprintCallable)
+	void DeathEnd();
 };
