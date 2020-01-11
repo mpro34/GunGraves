@@ -65,6 +65,13 @@ public:
 	bool bInterpToEnemy;
 	void SetInterpToEnemy(bool Interp);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	class AEnemy* CombatTarget;
+
+	FORCEINLINE void SetCombatTarget(AEnemy* Target) { CombatTarget = Target; }
+
+	FRotator GetLookAtRotationYaw(FVector Target);
+
 	// Set movement status and running speed
 	void SetMovementStatus(EMovementStatus Status);
 
