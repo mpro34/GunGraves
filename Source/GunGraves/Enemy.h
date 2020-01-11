@@ -13,6 +13,7 @@ enum class EEnemyMovementStatus : uint8
 	EMS_Idle			UMETA(DisplayName = "Idle"),
 	EMS_MoveToTarget    UMETA(DisplayName = "MoveToTarget"),
 	EMS_Attacking		UMETA(DisplayName = "Attacking"),
+	EMS_Dead			UMETA(DisplayName = "Dead"),
 
 	EMS_Default			UMETA(DisplayName = "DefaultMAX")
 };
@@ -70,6 +71,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float AttackMaxTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TSubclassOf<UDamageType> DamageTypeClass;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -111,4 +115,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DeactivateCollision();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	void Die();
+
+	void DeathEnd();
 };

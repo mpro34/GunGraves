@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Sound/SoundCue.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -111,6 +112,11 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 			CombatTarget = Main;
 			bOverlappingCombatSphere = true;
 			SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Attacking);
+
+			if (DamageTypeClass)
+			{
+				UGameplayStatics::ApplyDamage(Main, Damage, AIController, this, DamageTypeClass);
+			}
 		}
 	}
 }
@@ -122,12 +128,15 @@ void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
 		AMain* Main = Cast<AMain>(OtherActor);
 		if (Main)
 		{
-			Main->SetCombatTarget(nullptr);
-			bOverlappingCombatSphere = false;
-			if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
+			if (Main->CombatTarget == this)
 			{
-				MoveToTarget(Main);
-				CombatTarget = nullptr;
+				Main->SetCombatTarget(nullptr);
+				bOverlappingCombatSphere = false;
+				if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
+				{
+					MoveToTarget(Main);
+					CombatTarget = nullptr;
+				}
 			}
 		}
 	}
@@ -198,4 +207,45 @@ void AEnemy::ActivateCollision()
 void AEnemy::DeactivateCollision()
 {
 	//CombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	if (Health - DamageAmount <= 0.f)
+	{
+		Health -= DamageAmount;
+		Die();
+	}
+	else
+	{
+		Health -= DamageAmount;
+	}
+	return DamageAmount;
+}
+
+void AEnemy::Die()
+{
+//	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+//	if (AnimInstance)
+//	{
+//		AnimInstance->Montage_Play(CombatMontage, 1.0f);
+//		AnimInstance->Montage_JumpToSection(FName("Death"));
+//	}
+	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dead);
+	AgroSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	DeathEnd();
+
+}
+
+void AEnemy::DeathEnd()
+{
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		World->DestroyActor(this);
+	}
 }
