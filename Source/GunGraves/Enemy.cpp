@@ -6,6 +6,12 @@
 #include "AIController.h"
 #include "Main.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Components/BoxComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Main.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -20,6 +26,9 @@ AEnemy::AEnemy()
 	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
 	CombatSphere->SetupAttachment(GetRootComponent());
 	CombatSphere->InitSphereRadius(75.f);
+
+	//CombatCollision->CreateDefaultSubobject<UBoxComponent>(TEXT("CombatCollisiond"));
+	//CombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("EnemySocket"));
 
 	bOverlappingCombatSphere = false;
 
@@ -144,4 +153,44 @@ void AEnemy::MoveToTarget(class AMain* Target)
 		*/
 
 	}
+}
+
+void AEnemy::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		AMain* Main = Cast<AMain>(OtherActor);
+		if (Main)
+		{
+			if (Main->HitParticles)
+			{
+				const USkeletalMeshSocket* EnemySocket = GetMesh()->GetSocketByName("EnemySocket");
+				if (EnemySocket)
+				{
+					FVector SocketLocation = EnemySocket->GetSocketLocation(GetMesh());
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), Main->HitParticles, SocketLocation, FRotator(0.f), false);
+				}
+			}
+			if (Main->HitSound)
+			{
+				UGameplayStatics::PlaySound2D(this, Main->HitSound);
+			}
+		}
+	}
+}
+
+void AEnemy::CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+
+}
+
+
+void AEnemy::ActivateCollision()
+{
+	//CombatCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AEnemy::DeactivateCollision()
+{
+	//CombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

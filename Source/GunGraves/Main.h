@@ -36,6 +36,12 @@ public:
 	// Sets default values for this character's properties
 	AMain();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	class UParticleSystem* HitParticles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	class USoundCue* HitSound;
+
 	TArray<FVector> PickupLocations;
 
 	UFUNCTION(BlueprintCallable)
@@ -54,6 +60,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MinSprintStamina;
+
+	float InterpSpeed;
+	bool bInterpToEnemy;
+	void SetInterpToEnemy(bool Interp);
 
 	// Set movement status and running speed
 	void SetMovementStatus(EMovementStatus Status);

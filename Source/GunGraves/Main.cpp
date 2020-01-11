@@ -13,6 +13,7 @@
 #include "Weapon.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AMain::AMain()
@@ -72,7 +73,8 @@ AMain::AMain()
 	StaminaDrainRate = 25.f;
 	MinSprintStamina = 50.f;
 
-
+	InterpSpeed = 15.f;
+	bInterpToEnemy = false;
 }
 
 // Called when the game starts or when spawned
@@ -339,6 +341,7 @@ void AMain::Attack()
 	if (!bAttacking)
 	{
 		bAttacking = true;
+		SetInterpToEnemy(true);
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && CombatMontage)
@@ -352,12 +355,16 @@ void AMain::Attack()
 				break;
 			case 1:
 				AnimInstance->Montage_Play(CombatMontage, 1.8f);
-				AnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage);
+				AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
 				break;
 			default:
 				;
 			}
 
+		}
+		if (EquippedWeapon->SwingSound)
+		{
+			UGameplayStatics::PlaySound2D(this, EquippedWeapon->SwingSound);
 		}
 	}
 }
@@ -369,4 +376,9 @@ void AMain::AttackEnd()
 	{
 		Attack();
 	}
+}
+
+void AMain::SetInterpToEnemy(bool Interp)
+{
+	bInterpToEnemy = Interp;
 }
