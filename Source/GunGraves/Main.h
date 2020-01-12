@@ -131,6 +131,7 @@ public:
 	int32 Coins;
 
 	void DecrementHealth(float Amount);
+	void IncrementHealth(float Amount);
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController * EventInstigator, AActor * DamageCauser) override;
 
@@ -201,4 +202,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DeathEnd();
+
+	void UpdateCombatTarget();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TSubclassOf<AEnemy> EnemyFilter;
 };
