@@ -3,6 +3,11 @@
 This is a game where you travel to various levels, picking up coins, battling various enemies and avoiding some explosives. 
 Created in Unreal Engine 4, where only the C++ code is stored here.
 
+**TODO: A cross between Zelda and Dead Souls, where the game consists of just Boss Fights, but each boss is difficult to take down.**
+1. Get 3rd person player that is able to roll
+2. Add shooting ability
+3. Add complex boss fights
+
 Even though there are no guns and/or graves in this game, there is a chance to become a grave yourself or defeat all the enemies!
 
 #### The screenshot below shows the starting location for the player. The player has a red health bar and a blue stamina bar, used for sprinting.
